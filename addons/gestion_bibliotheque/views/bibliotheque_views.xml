@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_library_book" model="ir.actions.act_window">
+        <field name="name">Livres</field>
+        <field name="res_model">library.book</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_library_member" model="ir.actions.act_window">
+        <field name="name">Adhérents</field>
+        <field name="res_model">library.member</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_library_loan" model="ir.actions.act_window">
+        <field name="name">Emprunts</field>
+        <field name="res_model">library.loan</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_library_root" name="Bibliothèque" sequence="20"/>
+
+    <menuitem id="menu_library_books" name="Livres" parent="menu_library_root" action="action_library_book" sequence="10"/>
+    <menuitem id="menu_library_members" name="Adhérents" parent="menu_library_root" action="action_library_member" sequence="20"/>
+    <menuitem id="menu_library_loans" name="Emprunts" parent="menu_library_root" action="action_library_loan" sequence="30"/>
+
+    <record id="view_library_book_tree" model="ir.ui.view">
+        <field name="name">library.book.tree</field>
+        <field name="model">library.book</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="author"/>
+                <field name="isbn"/>
+                <field name="copies_total"/>
+                <field name="copies_available"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_library_book_form" model="ir.ui.view">
+        <field name="name">library.book.form</field>
+        <field name="model">library.book</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="author"/>
+                        <field name="isbn"/>
+                        <field name="date_publication"/>
+                    </group>
+                    <group>
+                        <field name="copies_total"/>
+                        <field name="active_loan_count" readonly="1"/>
+                        <field name="copies_available" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Emprunts">
+                            <field name="loan_ids" readonly="1">
+                                <tree>
+                                    <field name="member_id"/>
+                                    <field name="date_emprunt"/>
+                                    <field name="date_retour_prevue"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_library_member_tree" model="ir.ui.view">
+        <field name="name">library.member.tree</field>
+        <field name="model">library.member</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_library_member_form" model="ir.ui.view">
+        <field name="name">library.member.form</field>
+        <field name="model">library.member</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="email"/>
+                        <field name="phone"/>
+                        <field name="active"/>
+                    </group>
+                    <notebook>
+                        <page string="Emprunts">
+                            <field name="loan_ids" readonly="1">
+                                <tree decoration-danger="is_late">
+                                    <field name="book_id"/>
+                                    <field name="date_emprunt"/>
+                                    <field name="date_retour_prevue"/>
+                                    <field name="state"/>
+                                    <field name="is_late"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_library_loan_tree" model="ir.ui.view">
+        <field name="name">library.loan.tree</field>
+        <field name="model">library.loan</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="is_late">
+                <field name="book_id"/>
+                <field name="member_id"/>
+                <field name="date_emprunt"/>
+                <field name="date_retour_prevue"/>
+                <field name="date_retour"/>
+                <field name="state"/>
+                <field name="is_late"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_library_loan_form" model="ir.ui.view">
+        <field name="name">library.loan.form</field>
+        <field name="model">library.loan</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_return" type="object" string="Retour" class="btn-primary" attrs="{'invisible': [('state', '=', 'returned')]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="ongoing,returned"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="book_id"/>
+                        <field name="member_id"/>
+                    </group>
+                    <group>
+                        <field name="date_emprunt"/>
+                        <field name="date_retour_prevue"/>
+                        <field name="date_retour" attrs="{'invisible': [('state', '!=', 'returned')]}"/>
+                        <field name="is_late" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
